@@ -13,6 +13,16 @@ Existing **To Mp4** / **To Webm** already accept `.mov` (including DXV-in-MOV). 
 
 Droplet chooser: `D:\coding\projects\droplets\Convert-Video-DXV3.bat` (calls this app’s presets; does not replace File Converter).
 
+### Install without the MSI
+
+The WiX MSI often hangs on shell-extension registration. Prefer the copy installer:
+
+```powershell
+pwsh -File D:\coding\projects\FileConverter\tools\Install-FileConverter-Copy.ps1
+```
+
+That installs to `%LOCALAPPDATA%\Programs\File Converter` and Start Menu. Skip Explorer right-click until you need it; then run the same script elevated with `-RegisterShell`.
+
 ## Description
 
 **File Converter** is a very simple tool which allows you to convert and compress one or several file(s) using the context menu of windows explorer.
