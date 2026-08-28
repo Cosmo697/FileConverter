@@ -23,7 +23,7 @@ namespace FileConverter
             "3gp","3gpp","aac","aiff","ape","arw","avi","avif","bik","bmp","cda","cr2","dds","dng","doc","docx",
             "exr","flac","flv","gif","heic","ico","jfif","jpg","jpeg","m4a","m4b","m4v","mkv","mov","mp3","mp4",
             "mpg","mpeg","nef","odp","ods","odt","oga","ogg","ogv","opus","pdf","png","ppt","pptx","psd",
-            "raf", "rm","svg","tga","tif","tiff", "ts", "vob","wav","webm","webp","wma","wmv","xls","xlsx"
+            "raf", "rm","svg","tga","tif","tiff", "ts", "vob","wav","webm","webp","wma","wmv","xls","xlsx","dxv3"
         };
 
         public static string GetExtensionCategory(string extension)
@@ -49,6 +49,7 @@ namespace FileConverter
                 case "3gpp":
                 case "avi":
                 case "bik":
+                case "dxv3":
                 case "flv":
                 case "m4v":
                 case "mp4":
@@ -207,7 +208,9 @@ namespace FileConverter
                     return category == InputCategoryNames.Audio || category == InputCategoryNames.Video;
 
                 case OutputType.Avi:
+                case OutputType.Dxv:
                 case OutputType.Mkv:
+                case OutputType.Mov:
                 case OutputType.Mp4:
                 case OutputType.Ogv:
                 case OutputType.Webm:

@@ -503,6 +503,21 @@ namespace FileConverter
                     this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.FFMPEGCustomCommand, string.Empty);
                     break;
 
+                case OutputType.Dxv:
+                    // Encoded by Adobe Media Encoder (Resolume DXV3 plugin) via watch folders.
+                    this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.DxvQuality, "NoAlpha");
+                    break;
+
+                case OutputType.Mov:
+                    // ProRes MOV via ffmpeg (422 or 4444).
+                    this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.EnableAudio, "True");
+                    this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.ProResProfile, "422");
+                    this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.VideoScale, "1");
+                    this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.VideoRotation, "0");
+                    this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.EnableFFMPEGCustomCommand, "False");
+                    this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.FFMPEGCustomCommand, string.Empty);
+                    break;
+
                 // Images
                 case OutputType.Avif:
                     this.InitializeSettingsValue(ConversionPreset.ConversionSettingKeys.ImageQuality, "50");
@@ -620,6 +635,9 @@ namespace FileConverter
             public const string EnableAudio = "EnableAudio";
             public const string EnableVideo = "EnableVideo";
             public const string EnableFFMPEGCustomCommand = "EnableFFMPEGCustomCommand";
+
+            public const string DxvQuality = "DxvQuality";
+            public const string ProResProfile = "ProResProfile";
         }
     }
 }

@@ -1,5 +1,18 @@
 # File Converter
 
+## Cosmo fork notes (DXV3 / Resolume)
+
+This fork keeps **all original File Converter conversions** (MP4, WebM, images, Office, audio, etc.) and adds Resolume presets:
+
+- `Resolume/To DXV3 (Normal, No Alpha)` — Adobe Media Encoder watch folders + Resolume DXV plugin
+- `Resolume/To DXV3 (Normal, With Alpha)`
+- `Resolume/To ProRes 422 MOV` — ffmpeg
+- `Resolume/To ProRes 4444 MOV (alpha)` — ffmpeg
+
+Existing **To Mp4** / **To Webm** already accept `.mov` (including DXV-in-MOV). Setup for DXV encode: `Middleware/ame-watch/README.txt`.
+
+Droplet chooser: `D:\coding\projects\droplets\Convert-Video-DXV3.bat` (calls this app’s presets; does not replace File Converter).
+
 ## Description
 
 **File Converter** is a very simple tool which allows you to convert and compress one or several file(s) using the context menu of windows explorer.

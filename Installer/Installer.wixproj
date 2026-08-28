@@ -40,6 +40,6 @@
       <SuppressRegistry>true</SuppressRegistry>
     </HarvestDirectory>
   </ItemGroup>
-  <!-- congigure the project to sign the installer. Comment this line to produce an unsigned installer. -->
-  <Import Project=".\Installer.sign" Condition=" '$(Configuration)' == 'Release' " />
+  <!-- Optional code-signing. Absent Installer.sign => unsigned MSI (fine for local Cosmo builds). -->
+  <Import Project=".\Installer.sign" Condition=" '$(Configuration)' == 'Release' AND Exists('.\Installer.sign') " />
 </Project>

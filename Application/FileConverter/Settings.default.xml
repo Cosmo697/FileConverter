@@ -172,6 +172,108 @@
         <Settings Key="FFMPEGCustomCommand" Value="" />
         <OutputFileNameTemplate>(p)(f)</OutputFileNameTemplate>
     </ConversionPreset>
+    <ConversionPreset Name="Resolume/To DXV3 (Normal, No Alpha)" OutputType="Dxv" IsDefaultSettings="true">
+        <InputTypes>gif</InputTypes>
+        <InputTypes>3gp</InputTypes>
+        <InputTypes>3gpp</InputTypes>
+        <InputTypes>avi</InputTypes>
+        <InputTypes>bik</InputTypes>
+        <InputTypes>dxv3</InputTypes>
+        <InputTypes>flv</InputTypes>
+        <InputTypes>m4v</InputTypes>
+        <InputTypes>mkv</InputTypes>
+        <InputTypes>mov</InputTypes>
+        <InputTypes>mp4</InputTypes>
+        <InputTypes>mpg</InputTypes>
+        <InputTypes>mpeg</InputTypes>
+        <InputTypes>ogv</InputTypes>
+        <InputTypes>rm</InputTypes>
+        <InputTypes>ts</InputTypes>
+        <InputTypes>webm</InputTypes>
+        <InputTypes>wmv</InputTypes>
+        <InputPostConversionAction>None</InputPostConversionAction>
+        <Settings Key="DxvQuality" Value="NoAlpha" />
+        <OutputFileNameTemplate>(p)(f)_dxv</OutputFileNameTemplate>
+    </ConversionPreset>
+    <ConversionPreset Name="Resolume/To DXV3 (Normal, With Alpha)" OutputType="Dxv" IsDefaultSettings="true">
+        <InputTypes>gif</InputTypes>
+        <InputTypes>3gp</InputTypes>
+        <InputTypes>3gpp</InputTypes>
+        <InputTypes>avi</InputTypes>
+        <InputTypes>bik</InputTypes>
+        <InputTypes>dxv3</InputTypes>
+        <InputTypes>flv</InputTypes>
+        <InputTypes>m4v</InputTypes>
+        <InputTypes>mkv</InputTypes>
+        <InputTypes>mov</InputTypes>
+        <InputTypes>mp4</InputTypes>
+        <InputTypes>mpg</InputTypes>
+        <InputTypes>mpeg</InputTypes>
+        <InputTypes>ogv</InputTypes>
+        <InputTypes>rm</InputTypes>
+        <InputTypes>ts</InputTypes>
+        <InputTypes>webm</InputTypes>
+        <InputTypes>wmv</InputTypes>
+        <InputPostConversionAction>None</InputPostConversionAction>
+        <Settings Key="DxvQuality" Value="WithAlpha" />
+        <OutputFileNameTemplate>(p)(f)_dxv</OutputFileNameTemplate>
+    </ConversionPreset>
+    <ConversionPreset Name="Resolume/To ProRes 422 MOV" OutputType="Mov" IsDefaultSettings="true">
+        <InputTypes>gif</InputTypes>
+        <InputTypes>3gp</InputTypes>
+        <InputTypes>3gpp</InputTypes>
+        <InputTypes>avi</InputTypes>
+        <InputTypes>bik</InputTypes>
+        <InputTypes>dxv3</InputTypes>
+        <InputTypes>flv</InputTypes>
+        <InputTypes>m4v</InputTypes>
+        <InputTypes>mkv</InputTypes>
+        <InputTypes>mov</InputTypes>
+        <InputTypes>mp4</InputTypes>
+        <InputTypes>mpg</InputTypes>
+        <InputTypes>mpeg</InputTypes>
+        <InputTypes>ogv</InputTypes>
+        <InputTypes>rm</InputTypes>
+        <InputTypes>ts</InputTypes>
+        <InputTypes>webm</InputTypes>
+        <InputTypes>wmv</InputTypes>
+        <InputPostConversionAction>None</InputPostConversionAction>
+        <Settings Key="EnableAudio" Value="True" />
+        <Settings Key="ProResProfile" Value="422" />
+        <Settings Key="VideoScale" Value="1" />
+        <Settings Key="VideoRotation" Value="0" />
+        <Settings Key="EnableFFMPEGCustomCommand" Value="False" />
+        <Settings Key="FFMPEGCustomCommand" Value="" />
+        <OutputFileNameTemplate>(p)(f)_prores422</OutputFileNameTemplate>
+    </ConversionPreset>
+    <ConversionPreset Name="Resolume/To ProRes 4444 MOV (alpha)" OutputType="Mov" IsDefaultSettings="true">
+        <InputTypes>gif</InputTypes>
+        <InputTypes>3gp</InputTypes>
+        <InputTypes>3gpp</InputTypes>
+        <InputTypes>avi</InputTypes>
+        <InputTypes>bik</InputTypes>
+        <InputTypes>dxv3</InputTypes>
+        <InputTypes>flv</InputTypes>
+        <InputTypes>m4v</InputTypes>
+        <InputTypes>mkv</InputTypes>
+        <InputTypes>mov</InputTypes>
+        <InputTypes>mp4</InputTypes>
+        <InputTypes>mpg</InputTypes>
+        <InputTypes>mpeg</InputTypes>
+        <InputTypes>ogv</InputTypes>
+        <InputTypes>rm</InputTypes>
+        <InputTypes>ts</InputTypes>
+        <InputTypes>webm</InputTypes>
+        <InputTypes>wmv</InputTypes>
+        <InputPostConversionAction>None</InputPostConversionAction>
+        <Settings Key="EnableAudio" Value="True" />
+        <Settings Key="ProResProfile" Value="4444" />
+        <Settings Key="VideoScale" Value="1" />
+        <Settings Key="VideoRotation" Value="0" />
+        <Settings Key="EnableFFMPEGCustomCommand" Value="False" />
+        <Settings Key="FFMPEGCustomCommand" Value="" />
+        <OutputFileNameTemplate>(p)(f)_prores4444</OutputFileNameTemplate>
+    </ConversionPreset>
     <ConversionPreset Name="To Gif" OutputType="Gif" IsDefaultSettings="true">
         <InputTypes>xcf</InputTypes>
         <InputTypes>gif</InputTypes>

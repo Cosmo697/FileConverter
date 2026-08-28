@@ -28,6 +28,11 @@ namespace FileConverter.ConversionJobs
                 return new ConversionJob_PowerPoint(conversionPreset, inputFilePath);
             }
 
+            if (conversionPreset.OutputType == OutputType.Dxv)
+            {
+                return new ConversionJob_AME_DXV(conversionPreset, inputFilePath);
+            }
+
             if (conversionPreset.OutputType == OutputType.Ico)
             {
                 return new ConversionJob_Ico(conversionPreset, inputFilePath);

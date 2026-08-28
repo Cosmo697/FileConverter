@@ -1,0 +1,212 @@
+// <copyright file="ConversionJob_AME_DXV.cs" company="AAllard">License: http://www.gnu.org/licenses/gpl.html GPL version 3.</copyright>
+
+namespace FileConverter.ConversionJobs
+{
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
+
+    /// <summary>
+    /// Encode Resolume DXV3 via Adobe Media Encoder watch folders (Resolume DXV plugin).
+    /// Requires a one-time AME watch-folder setup (see Middleware/ame-watch/README.txt).
+    /// </summary>
+    public class ConversionJob_AME_DXV : ConversionJob
+    {
+        private static readonly object AmeGate = new object();
+
+        public ConversionJob_AME_DXV()
+            : base()
+        {
+        }
+
+        public ConversionJob_AME_DXV(ConversionPreset conversionPreset, string inputFilePath)
+            : base(conversionPreset, inputFilePath)
+        {
+        }
+
+        protected override void Convert()
+        {
+            // Serialize AME watch-folder jobs; concurrent drops into the same folder are racey.
+            lock (AmeGate)
+            {
+                this.ConvertLocked();
+            }
+        }
+
+        private void ConvertLocked()
+        {
+            this.UserState = "Preparing DXV3 (Adobe Media Encoder)";
+            this.Progress = 0.05f;
+
+            string quality = this.ConversionPreset.GetSettingsValue<string>(ConversionPreset.ConversionSettingKeys.DxvQuality) ?? "NoAlpha";
+            bool withAlpha = string.Equals(quality, "WithAlpha", StringComparison.OrdinalIgnoreCase);
+            string watchKey = withAlpha ? "dxv-normal-withalpha" : "dxv-normal-noalpha";
+
+            string watchRoot = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "FileConverter",
+                "ame-watch");
+            string inputDir = Path.Combine(watchRoot, watchKey, "input");
+            string outputDir = Path.Combine(watchRoot, watchKey, "output");
+            Directory.CreateDirectory(inputDir);
+            Directory.CreateDirectory(outputDir);
+
+            string pluginPath = @"C:\Program Files\Adobe\Common\Plug-ins\7.0\MediaCore\Resolume DXV\DXV3MediaCoreExport.prm";
+            if (!File.Exists(pluginPath))
+            {
+                this.ConversionFailed(
+                    "Resolume DXV3 Adobe plugin not found. Install Resolume Alley/Arena (DXV exporters), then reopen Adobe Media Encoder.");
+                return;
+            }
+
+            string ameExe = FindAmeExecutable();
+            if (string.IsNullOrEmpty(ameExe))
+            {
+                this.ConversionFailed(
+                    "Adobe Media Encoder not found. Install AME (this machine uses D:\\Adobe\\Adobe Media Encoder 2026\\), create DXV3 watch folders, then retry.");
+                return;
+            }
+
+            EnsureAmeRunning(ameExe);
+
+            string leaf = Path.GetFileName(this.InputFilePath);
+            string staged = Path.Combine(inputDir, leaf);
+            if (File.Exists(staged))
+            {
+                string baseName = Path.GetFileNameWithoutExtension(leaf);
+                string ext = Path.GetExtension(leaf);
+                int n = 1;
+                do
+                {
+                    staged = Path.Combine(inputDir, $"{baseName}_{n:000}{ext}");
+                    n++;
+                }
+                while (File.Exists(staged));
+            }
+
+            File.Copy(this.InputFilePath, staged, false);
+            Diagnostics.Debug.Log($"AME watch staged: {staged}");
+            this.UserState = "Waiting for Adobe Media Encoder (DXV3)";
+            this.Progress = 0.15f;
+
+            string baseLeaf = Path.GetFileNameWithoutExtension(leaf);
+            DateTime deadline = DateTime.UtcNow.AddMinutes(45);
+            string produced = null;
+
+            while (DateTime.UtcNow < deadline)
+            {
+                if (this.CancelIsRequested)
+                {
+                    this.ConversionFailed("Cancelled.");
+                    return;
+                }
+
+                FileInfo candidate = new DirectoryInfo(outputDir)
+                    .EnumerateFiles("*", SearchOption.TopDirectoryOnly)
+                    .Where(f =>
+                        (f.Extension.Equals(".mov", StringComparison.OrdinalIgnoreCase)
+                         || f.Extension.Equals(".dxv3", StringComparison.OrdinalIgnoreCase))
+                        && f.Name.StartsWith(baseLeaf, StringComparison.OrdinalIgnoreCase)
+                        && f.Length > 0)
+                    .OrderByDescending(f => f.LastWriteTimeUtc)
+                    .FirstOrDefault();
+
+                if (candidate != null)
+                {
+                    long len1 = candidate.Length;
+                    Thread.Sleep(2000);
+                    candidate.Refresh();
+                    long len2 = candidate.Length;
+                    if (len1 == len2 && len2 > 0)
+                    {
+                        produced = candidate.FullName;
+                        break;
+                    }
+                }
+
+                this.Progress = Math.Min(0.9f, this.Progress + 0.01f);
+                Thread.Sleep(3000);
+            }
+
+            if (string.IsNullOrEmpty(produced))
+            {
+                this.ConversionFailed(
+                    "Timed out waiting for AME DXV3 output. Create AME watch folders for:\n" +
+                    $"  input:  {inputDir}\n" +
+                    $"  output: {outputDir}\n" +
+                    "Format=DXV3, Normal Quality " + (withAlpha ? "With Alpha" : "No Alpha") +
+                    ". See Middleware\\ame-watch\\README.txt. Keep AME running.");
+                return;
+            }
+
+            this.UserState = "Copying DXV3 result";
+            this.Progress = 0.95f;
+            File.Copy(produced, this.OutputFilePath, true);
+            this.Progress = 1f;
+            Diagnostics.Debug.Log($"DXV3 output: {this.OutputFilePath}");
+        }
+
+        private static string FindAmeExecutable()
+        {
+            // Prefer a live process path when AME is already open (Adobe often lives under D:\Adobe on this machine).
+            try
+            {
+                Process process = Process.GetProcessesByName("Adobe Media Encoder").FirstOrDefault();
+                if (process != null)
+                {
+                    try
+                    {
+                        string path = process.MainModule?.FileName;
+                        if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                        {
+                            return path;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Diagnostics.Debug.Log($"Could not read AME process path: {exception.Message}");
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Diagnostics.Debug.Log($"AME process lookup failed: {exception.Message}");
+            }
+
+            string[] guesses =
+            {
+                @"D:\Adobe\Adobe Media Encoder 2026\Adobe Media Encoder.exe",
+                @"D:\Adobe\Adobe Media Encoder 2025\Adobe Media Encoder.exe",
+                @"C:\Program Files\Adobe\Adobe Media Encoder 2026\Adobe Media Encoder.exe",
+                @"C:\Program Files\Adobe\Adobe Media Encoder 2025\Adobe Media Encoder.exe",
+            };
+
+            foreach (string guess in guesses)
+            {
+                if (File.Exists(guess))
+                {
+                    return guess;
+                }
+            }
+
+            return null;
+        }
+
+        private static void EnsureAmeRunning(string ameExe)
+        {
+            Process[] existing = Process.GetProcessesByName("Adobe Media Encoder");
+            if (existing != null && existing.Length > 0)
+            {
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo(ameExe)
+            {
+                UseShellExecute = true,
+            });
+            Thread.Sleep(5000);
+        }
+    }
+}

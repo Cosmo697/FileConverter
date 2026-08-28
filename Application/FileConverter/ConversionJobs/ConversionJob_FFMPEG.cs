@@ -406,6 +406,39 @@ namespace FileConverter.ConversionJobs
 
                     break;
 
+                case OutputType.Mov:
+                    {
+                        // Apple ProRes in MOV (useful when converting from DXV3 / alpha sources).
+                        string profile = this.ConversionPreset.GetSettingsValue<string>(ConversionPreset.ConversionSettingKeys.ProResProfile) ?? "422";
+                        string transformArgs = ConversionJob_FFMPEG.ComputeTransformArgs(this.ConversionPreset);
+                        string videoFilteringArgs = ConversionJob_FFMPEG.Encapsulate("-vf", transformArgs);
+
+                        string audioArgs = "-an";
+                        if (this.ConversionPreset.GetSettingsValue<bool>(ConversionPreset.ConversionSettingKeys.EnableAudio))
+                        {
+                            audioArgs = "-c:a pcm_s16le";
+                        }
+
+                        string profileArg;
+                        string pixFmt;
+                        if (string.Equals(profile, "4444", StringComparison.OrdinalIgnoreCase))
+                        {
+                            profileArg = "4";
+                            pixFmt = "yuva444p10le";
+                        }
+                        else
+                        {
+                            profileArg = "2";
+                            pixFmt = "yuv422p10le";
+                        }
+
+                        string encoderArgs = $"-c:v prores_ks -profile:v {profileArg} -pix_fmt {pixFmt} {audioArgs} {videoFilteringArgs}";
+                        string arguments = $"{baseArgs} -i \"{this.InputFilePath}\" {encoderArgs} \"{this.OutputFilePath}\"";
+                        this.ffmpegArgumentStringByPass.Add(new FFMpegPass(arguments));
+                    }
+
+                    break;
+
                 default:
                     throw new NotImplementedException("Converter not implemented for output file type " +
                                                       this.ConversionPreset.OutputType);

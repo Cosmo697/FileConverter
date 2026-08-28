@@ -148,7 +148,10 @@ namespace FileConverter
 
             string inputExtension = System.IO.Path.GetExtension(inputFilePath).Substring(1);
             string inputPathWithoutExtension = inputFilePath.Substring(0, inputFilePath.Length - inputExtension.Length - 1);
-            string outputExtension = outputFileExtension.ToString().ToLowerInvariant();
+            // DXV3 always lives in a .mov container; enum name Dxv would otherwise become ".dxv".
+            string outputExtension = outputFileExtension == OutputType.Dxv
+                ? "mov"
+                : outputFileExtension.ToString().ToLowerInvariant();
 
             if (string.IsNullOrEmpty(outputFilePathTemplate))
             {

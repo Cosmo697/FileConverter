@@ -444,6 +444,28 @@
         </Grid>
     </DataTemplate>
 
+    <DataTemplate x:Key="DxvSettingsDataTemplate" DataType="{x:Type fileConverter:ConversionPreset}">
+        <StackPanel>
+            <Label FontWeight="Bold" Content="Resolume DXV3 (Adobe Media Encoder)" />
+            <TextBlock TextWrapping="Wrap" Margin="0,4,0,8"
+                       Text="Uses AME watch folders + the Resolume DXV3 plugin. Run Middleware/ame-watch setup once, then keep Media Encoder running." />
+            <Label Content="DXV quality setting is chosen by the preset (No Alpha / With Alpha)." />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="MovSettingsDataTemplate" DataType="{x:Type fileConverter:ConversionPreset}">
+        <StackPanel>
+            <DockPanel>
+                <Label Content="{x:Static project:Resources.VideoTitle}" FontWeight="Bold" Margin="17,0,0,0" />
+                <Label Content="(ProRes MOV)" FontWeight="Light" Foreground="{DynamicResource MainDarkBrush}" />
+            </DockPanel>
+            <TextBlock TextWrapping="Wrap" Margin="0,4,0,8"
+                       Text="ProRes profile comes from the preset (422 or 4444). 4444 keeps alpha when the source has it." />
+            <CheckBox Margin="5,6,0,0" Content="Enable audio"
+                      IsChecked="{Binding Settings, ConverterParameter=EnableAudio|System.Boolean, Converter={StaticResource ConversionSettingsToValueType}, Mode=TwoWay}" />
+        </StackPanel>
+    </DataTemplate>
+
     <DataTemplate x:Key="WebmSettingsDataTemplate" DataType="{x:Type fileConverter:ConversionPreset}">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -659,6 +681,12 @@
             </DataTrigger>
             <DataTrigger Binding="{Binding OutputType}" Value="Webp">
                 <Setter Property="ContentTemplate" Value="{StaticResource JpgSettingsDataTemplate}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding OutputType}" Value="Dxv">
+                <Setter Property="ContentTemplate" Value="{StaticResource DxvSettingsDataTemplate}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding OutputType}" Value="Mov">
+                <Setter Property="ContentTemplate" Value="{StaticResource MovSettingsDataTemplate}"/>
             </DataTrigger>
         </Style.Triggers>
     </Style>
