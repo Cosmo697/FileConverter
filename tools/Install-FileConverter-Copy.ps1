@@ -75,8 +75,14 @@ if ($RegisterShell) {
     }
     if (-not (Test-Path -LiteralPath $ext)) { throw "Missing extension DLL: $ext" }
     Write-Host "Registering shell extension: $ext"
-    $r = Start-Process -FilePath $exe -ArgumentList @('--register-shell-extension', $ext) -WorkingDirectory $TargetDir -Wait -PassThru
-    if ($r.ExitCode -ne 0) { throw "Shell registration failed (exit $($r.ExitCode))" }
+    # Start-Process -ArgumentList array splits on spaces inside paths ("File Converter").
+    # Pass one quoted argument string so the DLL path stays a single argv token.
+    $r = Start-Process -FilePath $exe `
+        -ArgumentList "--register-shell-extension `"$ext`"" `
+        -WorkingDirectory $TargetDir -Wait -PassThru
+    if ($null -eq $r.ExitCode -or $r.ExitCode -ne 0) {
+        throw "Shell registration failed (exit $($r.ExitCode))"
+    }
     Write-Host 'Shell extension registered. Restart Explorer or sign out/in if the context menu is missing.'
 } else {
     Write-Host ''
