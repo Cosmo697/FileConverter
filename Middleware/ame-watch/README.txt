@@ -21,7 +21,10 @@ One-time setup
    - Format = DXV3
    - Compression = Normal Quality, No Alpha   (first pair)
                  = Normal Quality, With Alpha (second pair)
-5. Leave AME running when converting to DXV3.
+5. File Converter starts Adobe Media Encoder for each DXV job if it is not
+   already open, then closes it when that job finishes (only if File Converter
+   launched it — an AME session you already had open is left alone).
+   Watch folders must still exist from the one-time setup above.
 
 Presets in File Converter (Explorer right-click / CLI)
 -----------------------------------------------------

@@ -448,7 +448,7 @@
         <StackPanel>
             <Label FontWeight="Bold" Content="Resolume DXV3 (Adobe Media Encoder)" />
             <TextBlock TextWrapping="Wrap" Margin="0,4,0,8"
-                       Text="Uses AME watch folders + the Resolume DXV3 plugin. Run Middleware/ame-watch setup once, then keep Media Encoder running." />
+                       Text="Uses AME watch folders + the Resolume DXV3 plugin. Run Middleware/ame-watch setup once. File Converter starts/stops Media Encoder for each DXV job (leaves AME alone if you already opened it)." />
             <Label Content="DXV quality setting is chosen by the preset (No Alpha / With Alpha)." />
         </StackPanel>
     </DataTemplate>

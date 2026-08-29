@@ -37,6 +37,25 @@ namespace FileConverter.ConversionJobs
 
         private void ConvertLocked()
         {
+            bool ameStartedByUs = false;
+            try
+            {
+                this.ConvertLockedCore(out ameStartedByUs);
+            }
+            finally
+            {
+                // Only quit AME when this job launched it — leave a user-opened session alone.
+                if (ameStartedByUs)
+                {
+                    this.UserState = "Closing Adobe Media Encoder";
+                    StopAmeProcesses();
+                }
+            }
+        }
+
+        private void ConvertLockedCore(out bool ameStartedByUs)
+        {
+            ameStartedByUs = false;
             this.UserState = "Preparing DXV3 (Adobe Media Encoder)";
             this.Progress = 0.05f;
 
@@ -69,7 +88,11 @@ namespace FileConverter.ConversionJobs
                 return;
             }
 
-            EnsureAmeRunning(ameExe);
+            ameStartedByUs = EnsureAmeRunning(ameExe);
+            if (ameStartedByUs)
+            {
+                Diagnostics.Debug.Log("Adobe Media Encoder was started by File Converter for this DXV job.");
+            }
 
             string leaf = Path.GetFileName(this.InputFilePath);
             string staged = Path.Combine(inputDir, leaf);
@@ -137,7 +160,7 @@ namespace FileConverter.ConversionJobs
                     $"  input:  {inputDir}\n" +
                     $"  output: {outputDir}\n" +
                     "Format=DXV3, Normal Quality " + (withAlpha ? "With Alpha" : "No Alpha") +
-                    ". See Middleware\\ame-watch\\README.txt. Keep AME running.");
+                    ". See Middleware\\ame-watch\\README.txt.");
                 return;
             }
 
@@ -194,19 +217,116 @@ namespace FileConverter.ConversionJobs
             return null;
         }
 
-        private static void EnsureAmeRunning(string ameExe)
+        /// <returns>True if this call launched AME (caller should quit it when the job ends).</returns>
+        private static bool EnsureAmeRunning(string ameExe)
         {
-            Process[] existing = Process.GetProcessesByName("Adobe Media Encoder");
-            if (existing != null && existing.Length > 0)
+            if (GetAmeProcesses().Length > 0)
             {
-                return;
+                return false;
             }
 
+            Diagnostics.Debug.Log($"Starting Adobe Media Encoder: {ameExe}");
             Process.Start(new ProcessStartInfo(ameExe)
             {
                 UseShellExecute = true,
             });
-            Thread.Sleep(5000);
+
+            DateTime readyDeadline = DateTime.UtcNow.AddSeconds(90);
+            while (DateTime.UtcNow < readyDeadline)
+            {
+                if (GetAmeProcesses().Length > 0)
+                {
+                    // Give watch folders a moment to bind after the process appears.
+                    Thread.Sleep(8000);
+                    return true;
+                }
+
+                Thread.Sleep(500);
+            }
+
+            Diagnostics.Debug.Log("Adobe Media Encoder start timed out waiting for process.");
+            return true; // still attempt quit later in case a late process appears
+        }
+
+        private static Process[] GetAmeProcesses()
+        {
+            try
+            {
+                return Process.GetProcessesByName("Adobe Media Encoder")
+                    .Where(p =>
+                    {
+                        try
+                        {
+                            return !p.HasExited;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    })
+                    .ToArray();
+            }
+            catch (Exception exception)
+            {
+                Diagnostics.Debug.Log($"AME process list failed: {exception.Message}");
+                return Array.Empty<Process>();
+            }
+        }
+
+        private static void StopAmeProcesses()
+        {
+            Process[] processes = GetAmeProcesses();
+            if (processes.Length == 0)
+            {
+                return;
+            }
+
+            Diagnostics.Debug.Log($"Closing Adobe Media Encoder ({processes.Length} process(es)).");
+            foreach (Process process in processes)
+            {
+                try
+                {
+                    if (process.HasExited)
+                    {
+                        continue;
+                    }
+
+                    // Prefer a graceful close so AME can flush watch-folder state.
+                    process.CloseMainWindow();
+                    if (!process.WaitForExit(20000))
+                    {
+                        Diagnostics.Debug.Log($"AME PID {process.Id} ignored CloseMainWindow; killing.");
+                        process.Kill();
+                        process.WaitForExit(5000);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Diagnostics.Debug.Log($"Failed to close AME PID {process.Id}: {exception.Message}");
+                    try
+                    {
+                        if (!process.HasExited)
+                        {
+                            process.Kill();
+                        }
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+                finally
+                {
+                    try
+                    {
+                        process.Dispose();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+            }
         }
     }
 }
