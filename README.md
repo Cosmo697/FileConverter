@@ -4,14 +4,15 @@
 
 This fork keeps **all original File Converter conversions** (MP4, WebM, images, Office, audio, etc.) and adds Resolume presets:
 
-- `Resolume/To DXV3 (Normal, No Alpha)` — Adobe Media Encoder watch folders + Resolume DXV plugin
-- `Resolume/To DXV3 (Normal, With Alpha)`
+- **Preferred DXV encode:** PATH `ffmpeg-dxv3` via droplet `Convert-Video-DXV3` modes 1–2 (no Adobe Media Encoder)
+- `Resolume/To DXV3 (Normal, No Alpha)` — **legacy** AME watch folders + Resolume DXV plugin
+- `Resolume/To DXV3 (Normal, With Alpha)` — **legacy** AME path
 - `Resolume/To ProRes 422 MOV` — ffmpeg
 - `Resolume/To ProRes 4444 MOV (alpha)` — ffmpeg
 
-Existing **To Mp4** / **To Webm** already accept `.mov` (including DXV-in-MOV). Setup for DXV encode: `Middleware/ame-watch/README.txt`.
+Existing **To Mp4** / **To Webm** already accept `.mov` (including DXV-in-MOV). Legacy AME setup: `Middleware/ame-watch/README.txt`.
 
-Droplet chooser: `D:\coding\projects\droplets\Convert-Video-DXV3.bat` (calls this app’s presets; does not replace File Converter).
+Droplet: `D:\coding\projects\droplets\Convert-Video-DXV3\` — DXV modes use `ffmpeg-dxv3`; modes 3–6 still call this app for MP4/WebM/ProRes.
 
 ### Install (Explorer shell extension — the real product)
 

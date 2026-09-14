@@ -1,8 +1,11 @@
-File Converter — Resolume DXV3 via Adobe Media Encoder
+File Converter — Resolume DXV3 via Adobe Media Encoder (LEGACY)
 =======================================================
 
+Preferred DXV encode (no AME): PATH ffmpeg-dxv3 + droplets\Convert-Video-DXV3
+modes 1-2. Keep this AME watch-folder path only for legacy FC Resolume presets.
+
 All existing File Converter presets (MP4, WebM, images, Office, etc.) are unchanged.
-DXV3 encode uses Adobe Media Encoder watch folders + the Resolume DXV plugin.
+DXV3 encode in File Converter still uses Adobe Media Encoder watch folders + the Resolume DXV plugin.
 
 One-time setup
 --------------

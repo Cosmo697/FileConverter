@@ -31,7 +31,7 @@ upsert("ddxv3convert", {
     "args": "",
     "working_dir": str(bat.parent),
     "run_as_admin": False,
-    "tooltip": "File Converter Resolume presets (DXV3 / ProRes) + existing To Mp4/Webm",
+    "tooltip": "DXV3 via ffmpeg-dxv3 (dxt1/dxt5); modes 3-6 File Converter",
     "accepts": "files",
     "extensions": [".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v", ".dxv3", ".wmv", ".mpg", ".mpeg"]
 })
